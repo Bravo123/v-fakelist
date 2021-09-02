@@ -79,7 +79,7 @@ async function preRenderDom() {
   const currentProcessId = ++renderProcessId;
 
   let idx = 20;
-  const unit = 20;
+  const unit = 50;
 
   if (!renderEl.value || !rootEl.value) return;
 
@@ -105,6 +105,10 @@ async function preRenderDom() {
       item.height = node.clientHeight;
     });
   }
+
+  data.hidden = [];
+
+  console.log("---------- pre rendered.");
 }
 
 async function updateActiveItems() {
@@ -124,9 +128,31 @@ async function updateActiveItems() {
       (minY >= top && minY <= maxTop) || (maxY >= top && maxY <= maxTop);
     node.render = inView;
 
-    //
     preTop += node.height;
   });
+
+  // // render more items
+  // const moreItem = 5;
+
+  // const firstActiveItem = data.items.findIndex((i) => i.render);
+
+  // const lastActiveItem = data.items
+  //   .slice(firstActiveItem)
+  //   .findIndex((i) => !i.render);
+
+  // for (let idx = 1; idx <= moreItem; idx++) {
+  //   const beforeIdx = firstActiveItem - idx;
+
+  //   if (beforeIdx >= 0) {
+  //     data.items[beforeIdx].render = true;
+  //   }
+
+  //   const afterIdx = lastActiveItem + idx - 1;
+
+  //   if (afterIdx < data.items.length) {
+  //     data.items[afterIdx].render = true;
+  //   }
+  // }
 }
 
 onMounted(() => {
@@ -134,8 +160,8 @@ onMounted(() => {
 
   // updateActiveItems();
   document.onscroll = (ev) => {
-    updateActiveItems();
-    // measure("update active items", updateActiveItems);
+    // updateActiveItems();
+    measure("update active items", updateActiveItems);
   };
 });
 </script>
