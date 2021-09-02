@@ -1,0 +1,19 @@
+{
+  "name": "v-fakelist",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.2.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^1.6.0",
+    "@vue/compiler-sfc": "^3.2.7",
+    "typescript": "^4.4.2",
+    "vite": "^2.5.3",
+    "vue-tsc": "^0.2.3"
+  }
+}
