@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { computed, onMounted, reactive, ref, watchEffect } from "vue";
 import { debugInfo } from "../store";
 import { measure, sleep } from "../utils";
 import FakeListItem from "./FakeListItem.vue";
@@ -12,7 +12,6 @@ const props = defineProps<{
 
 const data = reactive({
   items: [] as FakeListItemProps[],
-  hidden: [] as FakeListItemProps[],
   offScreenStyle: {
     width: "",
   },
@@ -23,6 +22,7 @@ const renderedItems = computed(() => data.items.filter((i) => i.render));
 const heightsStyle = computed(() => {
   let beforeH = 0;
   let afterH = 0;
+  let contentH = 0;
 
   let activeIdx = -1;
 
@@ -37,6 +37,7 @@ const heightsStyle = computed(() => {
     }
 
     if (item.render) {
+      contentH += item.height;
       return;
     }
 
@@ -48,6 +49,7 @@ const heightsStyle = computed(() => {
   });
 
   return {
+    height: contentH + "px",
     paddingTop: beforeH + "px",
     paddingBottom: afterH + "px",
   };
@@ -55,30 +57,33 @@ const heightsStyle = computed(() => {
 
 const rootEl = ref<HTMLElement>();
 
+let isMounted = false;
+
 const cacheItems: Record<string, FakeListItemProps> = {};
 
+const firstRenderSize = 20;
+
 watchEffect(() => {
-  data.items = props.ids.map((uid) => {
+  data.items = props.ids.map((uid, idx) => {
     return (
       cacheItems[uid] ||
       (cacheItems[uid] = {
         uid,
         height: -1,
-        render: false,
+        render: idx < firstRenderSize,
       })
     );
   });
+
+  if (isMounted) {
+    firstRender();
+  }
 });
 
 async function firstRender() {
   if (!rootEl.value) return;
 
-  const firstRenderSize = 20;
   const allItems = data.items;
-
-  allItems.slice(0, firstRenderSize).forEach((n) => (n.render = true));
-
-  await sleep(10);
 
   const elNodes = rootEl.value.querySelectorAll("[data-fake-id]");
 
@@ -94,7 +99,7 @@ async function firstRender() {
 
   allItems.forEach((item) => {
     if (item.height === -1) {
-      item.height = props.minHeight || 100;
+      item.height = props.minHeight || elNodes.item(0).clientHeight;
     }
   });
 }
@@ -127,44 +132,15 @@ const updateActiveItems = async () => {
   debugInfo.renderSize = data.items.filter((i) => i.render).length;
 };
 
-const updateNodeHeight = (target: Element) => {
-  const uid = target.getAttribute("data-fake-id");
-  const item = data.items.find((i) => i.uid === uid);
-
-  if (item && item.render) {
-    item.height = target.clientHeight;
-  }
-};
-
-const resizeObserver = new ResizeObserver((entries) => {
-  for (let entry of entries) {
-    updateNodeHeight(entry.target);
-  }
-});
-
-function observeItemHeightChanged() {
-  if (!rootEl.value) {
-    return;
-  }
-
-  resizeObserver.disconnect();
-  const elNodes = rootEl.value.querySelectorAll("[data-fake-id]");
-
-  elNodes.forEach((node) => {
-    resizeObserver.observe(node);
-  });
-}
-
 onMounted(() => {
   firstRender();
+  isMounted = true;
 
   document.onscroll = (ev) => {
     updateActiveItems();
-    observeItemHeightChanged();
 
     // measure("update active items", () => {
     //   updateActiveItems();
-    //   observeItemHeightChanged();
     // });
   };
 });
@@ -172,7 +148,12 @@ onMounted(() => {
 
 <template>
   <div ref="rootEl" class="rendered" :style="heightsStyle">
-    <FakeListItem v-for="o in renderedItems" :key="o.uid" :uid="o.uid">
+    <FakeListItem
+      v-for="o in renderedItems"
+      :key="o.uid"
+      :uid="o.uid"
+      v-model:height="o.height"
+    >
       <slot name="content" :uid="o.uid"></slot>
     </FakeListItem>
   </div>
