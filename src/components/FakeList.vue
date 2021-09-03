@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
-import { sleep } from "../utils";
+import { debugInfo, store } from "../store";
+import { measure, sleep } from "../utils";
 import FakeListItem from "./FakeListItem.vue";
 import { FakeListItemProps } from "./typing";
 
@@ -47,12 +48,8 @@ const heightsStyle = computed(() => {
   });
 
   return {
-    before: {
-      height: beforeH + "px",
-    },
-    after: {
-      height: afterH + "px",
-    },
+    paddingTop: beforeH + "px",
+    paddingBottom: afterH + "px",
   };
 });
 
@@ -108,10 +105,10 @@ const updateActiveItems = async () => {
 
   const parentTop = rootEl.value.offsetTop;
 
-  const offscreenSize = 1000;
+  const offscreenSize = window.innerHeight * 3;
 
-  const top = window.scrollY;
-  const maxTop = top + window.innerHeight + offscreenSize;
+  const top = window.scrollY - offscreenSize;
+  const maxTop = top + window.innerHeight + offscreenSize * 2;
 
   let preTop = parentTop;
   data.items.forEach((node) => {
@@ -127,6 +124,8 @@ const updateActiveItems = async () => {
 
     preTop += node.height;
   });
+
+  debugInfo.renderSize = data.items.filter((i) => i.render).length;
 };
 
 const updateNodeHeight = (target: Element) => {
@@ -157,27 +156,28 @@ function observeItemHeightChanged() {
   });
 }
 
-watch(() => [renderedItems.value], observeItemHeightChanged);
-
 onMounted(() => {
   firstRender();
 
   document.onscroll = (ev) => {
     updateActiveItems();
-    // measure("update active items", updateActiveItems);
+    observeItemHeightChanged();
+
+    // measure("update active items", () => {
+    //   updateActiveItems();
+    //   observeItemHeightChanged();
+    // });
   };
 });
 </script>
 
 <template>
   <div class="fake-list" ref="rootEl">
-    <div class="before" :style="heightsStyle.before"></div>
-    <div ref="renderEl" class="rendered">
+    <div ref="renderEl" class="rendered" :style="heightsStyle">
       <FakeListItem v-for="o in renderedItems" :key="o.uid" :uid="o.uid">
         <slot name="content" :uid="o.uid"></slot>
       </FakeListItem>
     </div>
-    <div class="after" :style="heightsStyle.after"></div>
   </div>
 </template>
 
@@ -185,10 +185,5 @@ onMounted(() => {
 .off-screen {
   position: fixed;
   top: 110vh;
-}
-
-.before,
-.after {
-  width: 100%;
 }
 </style>

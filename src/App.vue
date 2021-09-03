@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, watchEffect } from "vue";
 import FakeList from "./components/FakeList.vue";
-import { newFakeItem, store } from "./store";
+import { debugInfo, newFakeItem, store } from "./store";
 import Counter from "./components/Counter.vue";
 
 const ids = computed(() => store.items.map((n) => n.id));
@@ -30,11 +30,11 @@ watchEffect(() => {
         .map((_, idx) => newFakeItem(`item-${oldLen + idx}`))
     );
   }
-  console.log(store.items.length);
 });
 </script>
 
 <template>
+  <div class="fixed-info">item size: {{ debugInfo.renderSize }}</div>
   <div class="app">
     <h1>
       Fake List:
@@ -55,4 +55,28 @@ watchEffect(() => {
   </div>
 </template>
 
-<style></style>
+<style>
+.fixed-info {
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+
+  width: 100%;
+  height: 55px;
+  box-shadow: 0 2px 10px #d6d6d6;
+  background: white;
+  border-bottom: 1px solid gray;
+}
+
+html,
+body,
+div {
+  padding: 0;
+  margin: 0;
+}
+
+.app {
+  margin-top: 60px;
+}
+</style>
