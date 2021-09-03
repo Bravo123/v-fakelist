@@ -76,6 +76,11 @@ div {
   margin: 0;
 }
 
+html,
+body {
+  scroll-behavior: smooth;
+}
+
 .app {
   margin-top: 60px;
 }
