@@ -6,6 +6,7 @@ import { FakeListItemProps } from "./typing";
 
 const props = defineProps<{
   ids: string[];
+  minHeight: number;
 }>();
 
 const data = reactive({
@@ -76,12 +77,12 @@ watchEffect(() => {
 let renderProcessId = 0;
 
 async function preRenderDom() {
+  if (!renderEl.value || !rootEl.value) return;
+
   const currentProcessId = ++renderProcessId;
 
   let idx = 20;
   const unit = 50;
-
-  if (!renderEl.value || !rootEl.value) return;
 
   data.offScreenStyle.width = renderEl.value.clientWidth + "px";
 
@@ -111,13 +112,44 @@ async function preRenderDom() {
   console.log("---------- pre rendered.");
 }
 
+async function firstRender() {
+  if (!renderEl.value || !rootEl.value) return;
+
+  const firstRenderSize = 20;
+  const allItems = data.items;
+
+  allItems.slice(0, firstRenderSize).forEach((n) => (n.render = true));
+
+  await sleep(10);
+
+  const elNodes = rootEl.value.querySelectorAll("[data-fake-id]");
+
+  elNodes.forEach((node) => {
+    const uid = node.getAttribute("data-fake-id");
+
+    const item = allItems.find((item) => item.uid === uid);
+
+    if (!item || item.height !== -1) return;
+
+    item.height = node.clientHeight;
+  });
+
+  allItems.forEach(item => {
+    if (item.height === -1) {
+      item.height = props.minHeight || 100
+    }
+  })
+}
+
 async function updateActiveItems() {
   if (!rootEl.value) return;
 
   const parentTop = rootEl.value.offsetTop;
 
-  const top = window.scrollY;
-  const maxTop = top + window.innerHeight;
+  const offscreenSize = 1000;
+
+  const top = window.scrollY - offscreenSize;
+  const maxTop = top + window.innerHeight + offscreenSize;
 
   let preTop = parentTop;
   data.items.forEach((node) => {
@@ -130,33 +162,21 @@ async function updateActiveItems() {
 
     preTop += node.height;
   });
-
-  // // render more items
-  // const moreItem = 5;
-
-  // const firstActiveItem = data.items.findIndex((i) => i.render);
-
-  // const lastActiveItem = data.items
-  //   .slice(firstActiveItem)
-  //   .findIndex((i) => !i.render);
-
-  // for (let idx = 1; idx <= moreItem; idx++) {
-  //   const beforeIdx = firstActiveItem - idx;
-
-  //   if (beforeIdx >= 0) {
-  //     data.items[beforeIdx].render = true;
-  //   }
-
-  //   const afterIdx = lastActiveItem + idx - 1;
-
-  //   if (afterIdx < data.items.length) {
-  //     data.items[afterIdx].render = true;
-  //   }
-  // }
 }
 
+// function observeItemHeight() {
+//   const resizeObserver = new ResizeObserver((entries) => {
+//     for (let entry of entries) {
+//       const uid = entry.target.getAttribute('data-fake-id')
+//     }
+//   });
+
+//   resizeObserver.observe(document.querySelector('.data-'));
+// }
+
 onMounted(() => {
-  preRenderDom();
+  // preRenderDom();
+  firstRender();
 
   // updateActiveItems();
   document.onscroll = (ev) => {
