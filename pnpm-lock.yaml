@@ -1,17 +1,21 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@types/lodash': ^4.14.172
   '@vitejs/plugin-vue': ^1.6.0
   '@vue/compiler-sfc': ^3.2.7
+  lodash: ^4.17.21
   typescript: ^4.4.2
   vite: ^2.5.3
   vue: ^3.2.7
   vue-tsc: ^0.2.3
 
 dependencies:
+  lodash: 4.17.21
   vue: registry.nlark.com/vue/3.2.7
 
 devDependencies:
+  '@types/lodash': registry.nlark.com/@types/lodash/4.14.172
   '@vitejs/plugin-vue': registry.nlark.com/@vitejs/plugin-vue/1.6.0_@vue+compiler-sfc@3.2.7
   '@vue/compiler-sfc': registry.nlark.com/@vue/compiler-sfc/3.2.7
   typescript: registry.nlark.com/typescript/4.4.2
@@ -149,6 +153,10 @@ packages:
   /lodash.camelcase/4.3.0:
     resolution: {integrity: sha1-soqmKIorn8ZRA1x3EfZathkDMaY=, tarball: lodash.camelcase/download/lodash.camelcase-4.3.0.tgz}
     dev: true
+
+  /lodash/4.17.21:
+    resolution: {integrity: sha1-Z5WRxWTDv/quhFTPCz3zcMPWkRw=, tarball: lodash/download/lodash-4.17.21.tgz}
+    dev: false
 
   /lru-cache/5.1.1:
     resolution: {integrity: sha1-HaJ+ZxAnGUdpXa9oSOhH8B2EuSA=, tarball: lru-cache/download/lru-cache-5.1.1.tgz}
@@ -318,6 +326,12 @@ packages:
     resolution: {integrity: sha1-GNyAkbKF35DbLyWqfZBs/DlLf3Q=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/@types/estree/download/@types/estree-0.0.48.tgz?cache=0&sync_timestamp=1629709254888&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Festree%2Fdownload%2F%40types%2Festree-0.0.48.tgz}
     name: '@types/estree'
     version: 0.0.48
+    dev: true
+
+  registry.nlark.com/@types/lodash/4.14.172:
+    resolution: {integrity: sha1-qtd0wo57/Xpn3iVAjgPuWow9Aoo=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/@types/lodash/download/@types/lodash-4.14.172.tgz?cache=0&sync_timestamp=1629721384648&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Flodash%2Fdownload%2F%40types%2Flodash-4.14.172.tgz}
+    name: '@types/lodash'
+    version: 4.14.172
     dev: true
 
   registry.nlark.com/@vitejs/plugin-vue/1.6.0_@vue+compiler-sfc@3.2.7:

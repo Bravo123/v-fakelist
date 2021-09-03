@@ -103,7 +103,7 @@ async function firstRender() {
   });
 }
 
-async function updateActiveItems() {
+const updateActiveItems = async () => {
   if (!rootEl.value) return;
 
   const parentTop = rootEl.value.offsetTop;
@@ -127,17 +127,20 @@ async function updateActiveItems() {
 
     preTop += node.height;
   });
-}
+};
+
+const updateNodeHeight = (target: Element) => {
+  const uid = target.getAttribute("data-fake-id");
+  const item = data.items.find((i) => i.uid === uid);
+
+  if (item && item.render) {
+    item.height = target.clientHeight;
+  }
+};
 
 const resizeObserver = new ResizeObserver((entries) => {
   for (let entry of entries) {
-    const uid = entry.target.getAttribute("data-fake-id");
-    const item = data.items.find((i) => i.uid === uid);
-
-    if (item && item.render) {
-      item.height = entry.target.clientHeight;
-      console.log("update size", item.height);
-    }
+    updateNodeHeight(entry.target);
   }
 });
 
@@ -157,10 +160,8 @@ function observeItemHeightChanged() {
 watch(() => [renderedItems.value], observeItemHeightChanged);
 
 onMounted(() => {
-  // preRenderDom();
   firstRender();
 
-  // updateActiveItems();
   document.onscroll = (ev) => {
     updateActiveItems();
     // measure("update active items", updateActiveItems);
