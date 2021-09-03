@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
-import { measure, sleep } from "../utils";
+import { sleep } from "../utils";
 import FakeListItem from "./FakeListItem.vue";
 import { FakeListItemProps } from "./typing";
 
@@ -74,44 +74,6 @@ watchEffect(() => {
   });
 });
 
-let renderProcessId = 0;
-
-async function preRenderDom() {
-  if (!renderEl.value || !rootEl.value) return;
-
-  const currentProcessId = ++renderProcessId;
-
-  let idx = 20;
-  const unit = 50;
-
-  data.offScreenStyle.width = renderEl.value.clientWidth + "px";
-
-  const allItems = data.items;
-  allItems.slice(0, idx).map((n) => (n.render = true));
-
-  while (currentProcessId === renderProcessId && idx <= allItems.length) {
-    data.hidden = allItems.slice(idx, idx + unit);
-    await sleep(10);
-    idx += unit;
-
-    const elNodes = rootEl.value.querySelectorAll("[data-fake-id]");
-
-    elNodes.forEach((node) => {
-      const uid = node.getAttribute("data-fake-id");
-
-      const item = allItems.find((item) => item.uid === uid);
-
-      if (!item || item.height !== -1) return;
-
-      item.height = node.clientHeight;
-    });
-  }
-
-  data.hidden = [];
-
-  console.log("---------- pre rendered.");
-}
-
 async function firstRender() {
   if (!renderEl.value || !rootEl.value) return;
 
@@ -169,7 +131,7 @@ const resizeObserver = new ResizeObserver((entries) => {
     const uid = entry.target.getAttribute("data-fake-id");
     const item = data.items.find((i) => i.uid === uid);
 
-    if (item) {
+    if (item && item.render) {
       item.height = entry.target.clientHeight;
       console.log("update size", item.height);
     }
@@ -207,16 +169,11 @@ onMounted(() => {
   <div class="fake-list" ref="rootEl">
     <div class="before" :style="heightsStyle.before"></div>
     <div ref="renderEl" class="rendered">
-      <FakeListItem v-for="o in renderedItems" :key="o.uid" v-bind="o">
+      <FakeListItem v-for="o in renderedItems" :key="o.uid" :uid="o.uid">
         <slot name="content" :uid="o.uid"></slot>
       </FakeListItem>
     </div>
     <div class="after" :style="heightsStyle.after"></div>
-    <div class="off-screen" :style="data.offScreenStyle">
-      <FakeListItem v-for="o in data.hidden" :key="o.uid" v-bind="o">
-        <slot name="content" :uid="o.uid"></slot>
-      </FakeListItem>
-    </div>
   </div>
 </template>
 

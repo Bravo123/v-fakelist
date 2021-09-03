@@ -1,25 +1,8 @@
 <script lang="ts" setup>
-export interface FakeListItemProps {
-  uid: string;
-  height: number;
-  render: boolean;
-}
-
-defineProps<FakeListItemProps>();
-
-function getItemStyle(item: FakeListItemProps) {
-  return {
-    minHeight: item.height + "px",
-  };
-}
+defineProps<{ uid: string }>();
 </script>
 <template>
-  <div
-    class="fake-item"
-    :key="uid"
-    :data-fake-id="uid"
-    :style="getItemStyle($props)"
-  >
+  <div class="fake-item" :key="uid" :data-fake-id="uid">
     <slot></slot>
   </div>
 </template>
