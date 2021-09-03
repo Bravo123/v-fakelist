@@ -119,7 +119,10 @@ async function updateActiveItems() {
     const maxY = minY + node.height;
 
     const inView =
-      (minY >= top && minY <= maxTop) || (maxY >= top && maxY <= maxTop);
+      (minY >= top && minY <= maxTop) ||
+      (maxY >= top && maxY <= maxTop) ||
+      (minY <= top && maxY >= maxTop);
+
     node.render = inView;
 
     preTop += node.height;
