@@ -173,11 +173,9 @@ onMounted(() => {
   <div class="fake-list" ref="rootEl">
     <div class="before" :style="heightsStyle.before"></div>
     <div ref="renderEl" class="rendered">
-      <KeepAlive>
-        <FakeListItem v-for="o in renderedItems" :key="o.uid" :uid="o.uid">
-          <slot name="content" :uid="o.uid"></slot>
-        </FakeListItem>
-      </KeepAlive>
+      <FakeListItem v-for="o in renderedItems" :key="o.uid" :uid="o.uid">
+        <slot name="content" :uid="o.uid"></slot>
+      </FakeListItem>
     </div>
     <div class="after" :style="heightsStyle.after"></div>
   </div>

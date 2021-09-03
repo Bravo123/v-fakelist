@@ -25,11 +25,10 @@ watchEffect(() => {
     const oldLen = store.items.length;
 
     store.items.push(
-      ...new Array(len - oldLen).fill(0).map((_, idx) =>
-        newFakeItem(`item-${oldLen + idx}`)
-      )
+      ...new Array(len - oldLen)
+        .fill(0)
+        .map((_, idx) => newFakeItem(`item-${oldLen + idx}`))
     );
-
   }
   console.log(store.items.length);
 });
