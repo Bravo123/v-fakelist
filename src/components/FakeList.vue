@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watchEffect } from "vue";
+import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
 import { measure, sleep } from "../utils";
 import FakeListItem from "./FakeListItem.vue";
 import { FakeListItemProps } from "./typing";
 
 const props = defineProps<{
   ids: string[];
-  minHeight: number;
+  minHeight?: number;
 }>();
 
 const data = reactive({
@@ -134,11 +134,11 @@ async function firstRender() {
     item.height = node.clientHeight;
   });
 
-  allItems.forEach(item => {
+  allItems.forEach((item) => {
     if (item.height === -1) {
-      item.height = props.minHeight || 100
+      item.height = props.minHeight || 100;
     }
-  })
+  });
 }
 
 async function updateActiveItems() {
@@ -164,15 +164,61 @@ async function updateActiveItems() {
   });
 }
 
-// function observeItemHeight() {
-//   const resizeObserver = new ResizeObserver((entries) => {
-//     for (let entry of entries) {
-//       const uid = entry.target.getAttribute('data-fake-id')
-//     }
-//   });
+const resizeObserver = new ResizeObserver((entries) => {
+  for (let entry of entries) {
+    const uid = entry.target.getAttribute("data-fake-id");
+    const item = data.items.find((i) => i.uid === uid);
 
-//   resizeObserver.observe(document.querySelector('.data-'));
-// }
+    if (item) {
+      item.height = entry.target.clientHeight;
+      console.log("update size", item.height);
+    }
+  }
+});
+
+function observeItemHeightChanged() {
+  if (!renderEl.value) {
+    return;
+  }
+
+  resizeObserver.disconnect();
+  const elNodes = renderEl.value.querySelectorAll("[data-fake-id]");
+
+  elNodes.forEach((node) => {
+    resizeObserver.observe(node);
+  });
+
+  // resizeObserver.observe(document.querySelector('.data-'));
+
+  // // Select the node that will be observed for mutations
+  // const targetNode = document.getElementById("some-id");
+
+  // // Options for the observer (which mutations to observe)
+  // const config = { attributes: true, childList: true, subtree: true };
+
+  // // Callback function to execute when mutations are observed
+
+  // // Create an observer instance linked to the callback function
+  // const observer = new MutationObserver((mutationsList, observer) => {
+  //   for (const mutation of mutationsList) {
+  //     if (mutation.type === "childList") {
+  //       console.log("A child node has been added or removed.");
+  //     } else if (mutation.type === "attributes") {
+  //       console.log(
+  //         "The " + mutation.attributeName + " attribute was modified."
+  //       );
+  //     }
+  //   }
+  // });
+
+  // // Start observing the target node for configured mutations
+  // observer.observe(targetNode, config);
+
+  // // Later, you can stop observing
+  // observer.disconnect();
+}
+
+watch(() => [renderedItems.value], observeItemHeightChanged);
 
 onMounted(() => {
   // preRenderDom();
@@ -180,8 +226,8 @@ onMounted(() => {
 
   // updateActiveItems();
   document.onscroll = (ev) => {
-    // updateActiveItems();
-    measure("update active items", updateActiveItems);
+    updateActiveItems();
+    // measure("update active items", updateActiveItems);
   };
 });
 </script>
