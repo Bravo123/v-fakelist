@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
-import { debugInfo, store } from "../store";
+import { debugInfo } from "../store";
 import { measure, sleep } from "../utils";
 import FakeListItem from "./FakeListItem.vue";
 import { FakeListItemProps } from "./typing";
@@ -53,7 +53,6 @@ const heightsStyle = computed(() => {
   };
 });
 
-const renderEl = ref<HTMLElement>();
 const rootEl = ref<HTMLElement>();
 
 const cacheItems: Record<string, FakeListItemProps> = {};
@@ -72,7 +71,7 @@ watchEffect(() => {
 });
 
 async function firstRender() {
-  if (!renderEl.value || !rootEl.value) return;
+  if (!rootEl.value) return;
 
   const firstRenderSize = 20;
   const allItems = data.items;
@@ -144,12 +143,12 @@ const resizeObserver = new ResizeObserver((entries) => {
 });
 
 function observeItemHeightChanged() {
-  if (!renderEl.value) {
+  if (!rootEl.value) {
     return;
   }
 
   resizeObserver.disconnect();
-  const elNodes = renderEl.value.querySelectorAll("[data-fake-id]");
+  const elNodes = rootEl.value.querySelectorAll("[data-fake-id]");
 
   elNodes.forEach((node) => {
     resizeObserver.observe(node);
@@ -172,18 +171,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="fake-list" ref="rootEl">
-    <div ref="renderEl" class="rendered" :style="heightsStyle">
-      <FakeListItem v-for="o in renderedItems" :key="o.uid" :uid="o.uid">
-        <slot name="content" :uid="o.uid"></slot>
-      </FakeListItem>
-    </div>
+  <div ref="rootEl" class="rendered" :style="heightsStyle">
+    <FakeListItem v-for="o in renderedItems" :key="o.uid" :uid="o.uid">
+      <slot name="content" :uid="o.uid"></slot>
+    </FakeListItem>
   </div>
 </template>
 
-<style scoped>
-.off-screen {
-  position: fixed;
-  top: 110vh;
-}
-</style>
+<style scoped></style>
