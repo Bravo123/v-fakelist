@@ -26,6 +26,7 @@ const heightStyle = computed(() => {
         <span> Height: </span>
         <input v-model.number="data.height" type="number" />
       </label>
+      <input v-model="data.check" type="checkbox" />
     </div>
     <div class="flex-wrap">
       <span class="gap" v-for="o in data.items" :key="o"> {{ o }}</span>

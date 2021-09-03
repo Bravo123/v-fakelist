@@ -7,5 +7,6 @@ export interface FakeListItemProps {
 export interface CounterOption {
   id: string;
   height: number;
+  check: boolean;
   items: string[];
 }
