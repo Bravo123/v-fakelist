@@ -4,8 +4,8 @@ import { CounterOption } from "./components/typing";
 const items = reactive<CounterOption[]>(
   new Array(1000).fill(0).map((_, idx) => ({
     id: `item-${idx}`,
-    height: 50,
-    items: new Array(100).fill(0).map((_, idx) => String(idx)),
+    height: ~~(100 + Math.random() * 200),
+    items: new Array(300).fill(0).map((_, idx) => String(idx)),
   }))
 );
 
