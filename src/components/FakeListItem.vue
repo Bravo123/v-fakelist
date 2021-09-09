@@ -44,7 +44,7 @@ onUnmounted(() => {
 
 <style scoped>
 .fake-item {
-  overflow: hidden;
-  transition: height ease .2s;
+  /* overflow: hidden;
+  transition: height ease .2s; */
 }
 </style>

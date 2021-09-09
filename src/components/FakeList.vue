@@ -104,14 +104,14 @@ async function firstRender() {
   });
 }
 
-const updateActiveItems = async () => {
+const updateActiveItems = async (offsetY: number = 0) => {
   if (!rootEl.value) return;
 
   const parentTop = rootEl.value.offsetTop;
 
-  const offscreenSize = window.innerHeight * 3;
+  const offscreenSize = 0;
 
-  const top = window.scrollY - offscreenSize;
+  const top = window.scrollY - offscreenSize + offsetY;
   const maxTop = top + window.innerHeight + offscreenSize * 2;
 
   let preTop = parentTop;
@@ -136,13 +136,22 @@ onMounted(() => {
   firstRender();
   isMounted = true;
 
-  document.onscroll = (ev) => {
-    updateActiveItems();
+  window.addEventListener(
+    "wheel",
+    (ev) => {
+      ev.preventDefault();
+      updateActiveItems(ev.deltaY);
 
-    // measure("update active items", () => {
-    //   updateActiveItems();
-    // });
-  };
+      console.log("hello", window.scrollY);
+
+      window.scrollTo({
+        top: window.scrollY + ev.deltaY,
+      });
+    },
+    {
+      passive: false,
+    }
+  );
 });
 </script>
 

@@ -78,7 +78,7 @@ div {
 
 html,
 body {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; */
 }
 
 .app {
